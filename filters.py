@@ -44,6 +44,10 @@ EXCLUDE_KEYWORDS = [
     "soccer",
     "crime",
     "murder",
+    "test",
+    "тест",
+    "autotranslate",
+    "автоперевод",
 ]
 
 def is_relevant(text):

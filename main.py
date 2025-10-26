@@ -203,10 +203,9 @@ def format_post(news_item: Dict) -> str:
     
     post = f"{start_emoji} <b>{title}</b>\n\n"
     
-    if description and len(description) > 150:
-        post += f"<blockquote>{description[:500]}{'...' if len(description) > 500 else ''}</blockquote>\n\n"
-    elif description:
-        post += f"{description}\n\n"
+    if description:
+        desc_text = description[:500] + ('...' if len(description) > 500 else '')
+        post += f"<blockquote>{desc_text}</blockquote>\n\n"
     
     post += f"<a href='{link}'>Читать полностью</a>\n\n"
     post += f"{hashtags_str} {end_emoji}"
