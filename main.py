@@ -9,6 +9,8 @@ import feedparser
 from bs4 import BeautifulSoup
 from aiogram import Bot
 from aiogram.enums import ParseMode
+from deep_translator import GoogleTranslator
+from langdetect import detect, LangDetectException
 
 from config import BOT_TOKEN, CHANNEL_ID, CHECK_INTERVAL, MAX_NEWS_PER_SOURCE, DUPLICATES_FILE
 from sources import NEWS_SOURCES
@@ -45,6 +47,36 @@ def save_processed_url(url: str):
 def get_url_hash(url: str) -> str:
     return hashlib.md5(url.encode()).hexdigest()
 
+def detect_language(text: str) -> str:
+    try:
+        if not text or len(text.strip()) < 3:
+            return 'unknown'
+        return detect(text)
+    except LangDetectException:
+        return 'unknown'
+
+def translate_to_russian(text: str) -> str:
+    if not text or not text.strip():
+        return text
+    
+    try:
+        lang = detect_language(text)
+        
+        if lang == 'ru' or lang == 'unknown':
+            return text
+        
+        translator = GoogleTranslator(source=lang, target='ru')
+        
+        if len(text) > 4500:
+            text = text[:4500]
+        
+        translated = translator.translate(text)
+        return translated if translated else text
+        
+    except Exception as e:
+        logger.warning(f"Ошибка перевода текста: {e}")
+        return text
+
 async def parse_rss(source: Dict) -> List[Dict]:
     news_items = []
     try:
@@ -68,9 +100,12 @@ async def parse_rss(source: Dict) -> List[Dict]:
                     combined_text = f"{title} {description}"
                     
                     if is_relevant(combined_text) and link:
+                        translated_title = translate_to_russian(title)
+                        translated_description = translate_to_russian(description)
+                        
                         news_items.append({
-                            'title': title,
-                            'description': description,
+                            'title': translated_title,
+                            'description': translated_description,
                             'link': link,
                             'source': source['name']
                         })
@@ -114,9 +149,12 @@ async def parse_html(source: Dict) -> List[Dict]:
                         combined_text = f"{title} {description}"
                         
                         if is_relevant(combined_text) and link:
+                            translated_title = translate_to_russian(title)
+                            translated_description = translate_to_russian(description)
+                            
                             news_items.append({
-                                'title': title,
-                                'description': description,
+                                'title': translated_title,
+                                'description': translated_description,
                                 'link': link,
                                 'source': source['name']
                             })

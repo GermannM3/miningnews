@@ -7,6 +7,8 @@ dependencies = [
     "aiogram>=3.22.0",
     "aiohttp>=3.12.15",
     "beautifulsoup4>=4.14.2",
+    "deep-translator>=1.11.4",
     "feedparser>=6.0.12",
+    "langdetect>=1.0.9",
     "lxml>=6.0.2",
 ]
