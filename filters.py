@@ -13,20 +13,25 @@ KEYWORDS = [
     "ферросплав",
     "горнодобы",
     "обогащен",
-    "зелён",
-    "зелен",
-    "углеродн",
-    "esg",
+    "зелён сталь",
+    "зелен сталь",
+    "металл",
+    "нлмк",
+    "северсталь",
+    "ммк",
+    "евраз",
+    "металлоинвест",
     "metallurg",
     "steel",
     "decarboniz",
-    "iron",
-    "ore",
+    "iron ore",
     "mining",
     "furnace",
     "smelting",
     "green steel",
-    "carbon",
+    "blast furnace",
+    "steel production",
+    "steel industry",
 ]
 
 EXCLUDE_KEYWORDS = [
@@ -48,6 +53,16 @@ EXCLUDE_KEYWORDS = [
     "тест",
     "autotranslate",
     "автоперевод",
+    "трамп",
+    "trump",
+    "политик",
+    "politics",
+    "выбор",
+    "election",
+    "асеан",
+    "asean",
+    "президент сша",
+    "белый дом",
 ]
 
 def is_relevant(text):
@@ -70,13 +85,13 @@ def get_hashtags(text):
     hashtags = []
     text_lower = text.lower()
     
-    if any(k in text_lower for k in ["металлург", "metallurg", "сталь", "steel", "чугун", "iron"]):
+    if any(k in text_lower for k in ["металлург", "metallurg", "сталь", "steel", "чугун"]):
         hashtags.append("#металлургия")
     
     if any(k in text_lower for k in ["гок", "руда", "ore", "горнодобы", "mining"]):
         hashtags.append("#ГОК")
     
-    if any(k in text_lower for k in ["декарбонизац", "decarboniz", "зелён", "green", "углеродн", "carbon"]):
+    if any(k in text_lower for k in ["декарбонизац", "decarboniz", "зелён сталь", "green steel"]):
         hashtags.append("#декарбонизация")
     
     if any(k in text_lower for k in ["esg", "устойчив", "sustainab"]):
@@ -88,4 +103,4 @@ def get_hashtags(text):
     if any(k in text_lower for k in ["прокат", "производств", "production"]):
         hashtags.append("#производство")
     
-    return hashtags if hashtags else ["#металлургия"]
+    return hashtags

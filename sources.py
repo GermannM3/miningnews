@@ -76,9 +76,4 @@ NEWS_SOURCES = [
         "type": "rss",
         "url": "https://www.metalexpert.com/rss/news.xml",
     },
-    {
-        "name": "Коммерсант",
-        "type": "rss",
-        "url": "https://www.kommersant.ru/RSS/corp.xml",
-    },
 ]
