@@ -125,7 +125,12 @@ async def parse_html(source: Dict) -> List[Dict]:
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
         connector = aiohttp.TCPConnector(ssl=ssl_context)
-        async with aiohttp.ClientSession(connector=connector) as session:
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        
+        async with aiohttp.ClientSession(connector=connector, headers=headers) as session:
             async with session.get(source['url'], timeout=aiohttp.ClientTimeout(total=30)) as response:
                 content = await response.text()
                 soup = BeautifulSoup(content, 'lxml')

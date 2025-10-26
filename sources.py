@@ -76,4 +76,9 @@ NEWS_SOURCES = [
         "type": "rss",
         "url": "https://www.metalexpert.com/rss/news.xml",
     },
+    {
+        "name": "Металлургпром",
+        "type": "rss",
+        "url": "https://www.metallurgprom.org/feed/",
+    },
 ]
