@@ -43,23 +43,9 @@ NEWS_SOURCES = [
         "description_selector": ".news-list-item__text",
     },
     {
-        "name": "ММК",
-        "type": "html",
-        "url": "https://mmk.ru/press_center/news/",
-        "selector": "div.news-item",
-        "title_selector": ".news-item__title",
-        "link_selector": "a",
-        "description_selector": ".news-item__description",
-    },
-    {
         "name": "Reuters Commodities",
         "type": "rss",
         "url": "https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best",
-    },
-    {
-        "name": "Металлоснабжение и сбыт",
-        "type": "rss",
-        "url": "https://www.metalinfo.ru/ru/news/rss",
     },
     {
         "name": "World Steel Association",
@@ -81,7 +67,7 @@ NEWS_SOURCES = [
         "description_selector": ".news-card__text",
     },
     {
-        "name": "Интерфакс Металлургия",
+        "name": "Интерфакс",
         "type": "rss",
         "url": "https://www.interfax.ru/rss.asp",
     },
@@ -91,12 +77,8 @@ NEWS_SOURCES = [
         "url": "https://www.metalexpert.com/rss/news.xml",
     },
     {
-        "name": "Ассоциация Сталь",
-        "type": "html",
-        "url": "https://www.steel-industry.ru/news/",
-        "selector": "div.news-list__item",
-        "title_selector": ".news-list__title",
-        "link_selector": "a",
-        "description_selector": ".news-list__description",
+        "name": "Коммерсант",
+        "type": "rss",
+        "url": "https://www.kommersant.ru/RSS/corp.xml",
     },
 ]
