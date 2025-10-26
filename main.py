@@ -20,6 +20,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+if not BOT_TOKEN or not CHANNEL_ID:
+    logger.error("BOT_TOKEN и CHANNEL_ID должны быть установлены!")
+    raise ValueError("Отсутствуют обязательные переменные окружения")
+
 bot = Bot(token=BOT_TOKEN)
 
 EMOJIS = {
