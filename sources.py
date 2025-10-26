@@ -27,11 +27,11 @@ NEWS_SOURCES = [
     {
         "name": "НЛМК",
         "type": "html",
-        "url": "https://nlmk.com/ru/media-center/news/",
-        "selector": "article.news-item",
-        "title_selector": ".news-item__title",
+        "url": "https://nlmk.com/ru/media-center/press-releases/",
+        "selector": "div[class*='press-release']",
+        "title_selector": "h4 a, .title",
         "link_selector": "a",
-        "description_selector": ".news-item__text",
+        "description_selector": "p, .description",
     },
     {
         "name": "Северсталь",

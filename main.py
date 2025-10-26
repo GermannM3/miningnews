@@ -5,6 +5,8 @@ import ssl
 from datetime import datetime
 from typing import List, Dict, Set
 import aiohttp
+import httpx
+import cloudscraper
 import feedparser
 from bs4 import BeautifulSoup
 from aiogram import Bot
@@ -120,58 +122,83 @@ async def parse_rss(source: Dict) -> List[Dict]:
 
 async def parse_html(source: Dict) -> List[Dict]:
     news_items = []
+    
+    content = None
+    for attempt in range(3):
+        try:
+            if attempt == 0:
+                async with httpx.AsyncClient(verify=False, timeout=30.0, follow_redirects=True) as client:
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                        'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+                        'Accept-Encoding': 'gzip, deflate, br',
+                        'Connection': 'keep-alive',
+                        'Upgrade-Insecure-Requests': '1'
+                    }
+                    response = await client.get(source['url'], headers=headers)
+                    if response.status_code == 200:
+                        content = response.text
+                        break
+            
+            elif attempt == 1:
+                scraper = cloudscraper.create_scraper(
+                    browser={'browser': 'chrome', 'platform': 'windows', 'desktop': True}
+                )
+                response = scraper.get(source['url'], timeout=30)
+                if response.status_code == 200:
+                    content = response.text
+                    break
+            
+            await asyncio.sleep(2)
+            
+        except Exception as e:
+            if attempt == 2:
+                logger.error(f"Ошибка парсинга HTML {source['name']} (все попытки): {e}")
+            continue
+    
+    if not content:
+        return news_items
+    
     try:
-        ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        soup = BeautifulSoup(content, 'lxml')
+        articles = soup.select(source['selector'])[:MAX_NEWS_PER_SOURCE * 2]
         
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-        
-        async with aiohttp.ClientSession(connector=connector, headers=headers) as session:
-            async with session.get(source['url'], timeout=aiohttp.ClientTimeout(total=30)) as response:
-                content = await response.text()
-                soup = BeautifulSoup(content, 'lxml')
+        for article in articles:
+            try:
+                title_elem = article.select_one(source['title_selector'])
+                link_elem = article.select_one(source['link_selector'])
+                desc_elem = article.select_one(source.get('description_selector', ''))
                 
-                articles = soup.select(source['selector'])[:MAX_NEWS_PER_SOURCE * 2]
+                title = title_elem.get_text(strip=True) if title_elem else ''
+                link = str(link_elem.get('href', '')) if link_elem else ''
+                description = desc_elem.get_text(strip=True) if desc_elem else ''
                 
-                for article in articles:
-                    try:
-                        title_elem = article.select_one(source['title_selector'])
-                        link_elem = article.select_one(source['link_selector'])
-                        desc_elem = article.select_one(source.get('description_selector', ''))
-                        
-                        title = title_elem.get_text(strip=True) if title_elem else ''
-                        link = str(link_elem.get('href', '')) if link_elem else ''
-                        description = desc_elem.get_text(strip=True) if desc_elem else ''
-                        
-                        if link and not link.startswith('http'):
-                            from urllib.parse import urljoin
-                            link = urljoin(source['url'], link)
-                        
-                        combined_text = f"{title} {description}"
-                        
-                        if is_relevant(combined_text) and link:
-                            translated_title = translate_to_russian(title)
-                            translated_description = translate_to_russian(description)
-                            
-                            news_items.append({
-                                'title': translated_title,
-                                'description': translated_description,
-                                'link': link,
-                                'source': source['name']
-                            })
-                            
-                            if len(news_items) >= MAX_NEWS_PER_SOURCE:
-                                break
-                    except Exception as e:
-                        logger.error(f"Ошибка обработки статьи из {source['name']}: {e}")
-                        continue
-                        
+                if link and not link.startswith('http'):
+                    from urllib.parse import urljoin
+                    link = urljoin(source['url'], link)
+                
+                combined_text = f"{title} {description}"
+                
+                if is_relevant(combined_text) and link:
+                    translated_title = translate_to_russian(title)
+                    translated_description = translate_to_russian(description)
+                    
+                    news_items.append({
+                        'title': translated_title,
+                        'description': translated_description,
+                        'link': link,
+                        'source': source['name']
+                    })
+                    
+                    if len(news_items) >= MAX_NEWS_PER_SOURCE:
+                        break
+            except Exception as e:
+                logger.error(f"Ошибка обработки статьи из {source['name']}: {e}")
+                continue
+                
     except Exception as e:
-        logger.error(f"Ошибка парсинга HTML {source['name']}: {e}")
+        logger.error(f"Ошибка обработки HTML {source['name']}: {e}")
     
     return news_items
 
