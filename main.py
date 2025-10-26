@@ -1,13 +1,14 @@
 import asyncio
 import logging
 import hashlib
+import ssl
 from datetime import datetime
 from typing import List, Dict, Set
 import aiohttp
 import feedparser
 from bs4 import BeautifulSoup
 from aiogram import Bot
-from aiogram.types import ParseMode
+from aiogram.enums import ParseMode
 
 from config import BOT_TOKEN, CHANNEL_ID, CHECK_INTERVAL, MAX_NEWS_PER_SOURCE, DUPLICATES_FILE
 from sources import NEWS_SOURCES
@@ -43,7 +44,11 @@ def get_url_hash(url: str) -> str:
 async def parse_rss(source: Dict) -> List[Dict]:
     news_items = []
     try:
-        async with aiohttp.ClientSession() as session:
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(source['url'], timeout=aiohttp.ClientTimeout(total=30)) as response:
                 content = await response.text()
                 feed = feedparser.parse(content)
@@ -77,7 +82,11 @@ async def parse_rss(source: Dict) -> List[Dict]:
 async def parse_html(source: Dict) -> List[Dict]:
     news_items = []
     try:
-        async with aiohttp.ClientSession() as session:
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        connector = aiohttp.TCPConnector(ssl=ssl_context)
+        async with aiohttp.ClientSession(connector=connector) as session:
             async with session.get(source['url'], timeout=aiohttp.ClientTimeout(total=30)) as response:
                 content = await response.text()
                 soup = BeautifulSoup(content, 'lxml')
@@ -91,7 +100,7 @@ async def parse_html(source: Dict) -> List[Dict]:
                         desc_elem = article.select_one(source.get('description_selector', ''))
                         
                         title = title_elem.get_text(strip=True) if title_elem else ''
-                        link = link_elem.get('href', '') if link_elem else ''
+                        link = str(link_elem.get('href', '')) if link_elem else ''
                         description = desc_elem.get_text(strip=True) if desc_elem else ''
                         
                         if link and not link.startswith('http'):
