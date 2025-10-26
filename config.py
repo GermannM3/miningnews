@@ -1,8 +1,21 @@
-BOT_TOKEN = "8478316877:AAF865h1MZk1GUGwfEfaEQH6IOJ4_qYj-AI"
-CHANNEL_ID = "-1001910234699"
+import os
+import sys
 
-CHECK_INTERVAL = 600
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHANNEL_ID = os.getenv("CHANNEL_ID")
 
-MAX_NEWS_PER_SOURCE = 3
+if not BOT_TOKEN:
+    print("⚠️  ВНИМАНИЕ: Переменная окружения BOT_TOKEN не установлена!")
+    print("📝 Установите токен через Replit Secrets или .env файл")
+    print("🔗 Получите новый токен у @BotFather в Telegram")
+    sys.exit(1)
+
+if not CHANNEL_ID:
+    print("⚠️  ВНИМАНИЕ: Переменная окружения CHANNEL_ID не установлена!")
+    print("📝 Установите ID канала через Replit Secrets или .env файл")
+    sys.exit(1)
+
+CHECK_INTERVAL = int(os.getenv("CHECK_INTERVAL", "600"))
+MAX_NEWS_PER_SOURCE = int(os.getenv("MAX_NEWS_PER_SOURCE", "3"))
 
 DUPLICATES_FILE = "duplicates.txt"
