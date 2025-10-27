@@ -2,7 +2,7 @@ NEWS_SOURCES = [
     {
         "name": "Metalinfo.ru",
         "type": "rss",
-        "url": "https://www.metalinfo.ru/ru/news/rss",
+        "url": "http://rss.metalinfo.ru/ru/news",
     },
     {
         "name": "RBC Металлургия",
@@ -26,21 +26,13 @@ NEWS_SOURCES = [
     },
     {
         "name": "НЛМК",
-        "type": "html",
-        "url": "https://nlmk.com/ru/media-center/press-releases/",
-        "selector": "div[class*='press-release']",
-        "title_selector": "h4 a, .title",
-        "link_selector": "a",
-        "description_selector": "p, .description",
+        "type": "rss",
+        "url": "https://nlmk.com/ru/media-center/press-releases/rss/",
     },
     {
         "name": "Северсталь",
-        "type": "html",
-        "url": "https://www.severstal.com/rus/media/news/",
-        "selector": "div.news-list-item",
-        "title_selector": ".news-list-item__title",
-        "link_selector": "a",
-        "description_selector": ".news-list-item__text",
+        "type": "rss",
+        "url": "https://www.severstal.com/rss/news/",
     },
     {
         "name": "Reuters Commodities",
@@ -59,12 +51,8 @@ NEWS_SOURCES = [
     },
     {
         "name": "МИСиС Новости",
-        "type": "html",
-        "url": "https://misis.ru/news/",
-        "selector": "div.news-card",
-        "title_selector": ".news-card__title",
-        "link_selector": "a",
-        "description_selector": ".news-card__text",
+        "type": "rss",
+        "url": "https://misis.ru/news/rss/",
     },
     {
         "name": "Интерфакс",

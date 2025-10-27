@@ -19,10 +19,13 @@ from sources import NEWS_SOURCES
 from filters import is_relevant, get_hashtags
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+httpx_logger = logging.getLogger("httpx")
+httpx_logger.setLevel(logging.WARNING)
 
 if not BOT_TOKEN or not CHANNEL_ID:
     logger.error("BOT_TOKEN и CHANNEL_ID должны быть установлены!")
@@ -81,6 +84,9 @@ def translate_to_russian(text: str) -> str:
 
 async def parse_rss(source: Dict) -> List[Dict]:
     news_items = []
+    parsed_count = 0
+    filtered_out = 0
+    
     try:
         ssl_context = ssl.create_default_context()
         ssl_context.check_hostname = False
@@ -91,7 +97,11 @@ async def parse_rss(source: Dict) -> List[Dict]:
                 content = await response.text()
                 feed = feedparser.parse(content)
                 
+                total_entries = len(feed.entries[:MAX_NEWS_PER_SOURCE * 2])
+                logger.debug(f"📥 {source['name']}: найдено {total_entries} записей в RSS")
+                
                 for entry in feed.entries[:MAX_NEWS_PER_SOURCE * 2]:
+                    parsed_count += 1
                     title = entry.get('title', '')
                     link = entry.get('link', '')
                     description = entry.get('description', '') or entry.get('summary', '')
@@ -114,6 +124,11 @@ async def parse_rss(source: Dict) -> List[Dict]:
                         
                         if len(news_items) >= MAX_NEWS_PER_SOURCE:
                             break
+                    else:
+                        filtered_out += 1
+                        
+                if parsed_count > 0 and len(news_items) == 0:
+                    logger.warning(f"⚠️ {source['name']}: распарсено {parsed_count}, отфильтровано {filtered_out}, релевантных 0")
                             
     except Exception as e:
         logger.error(f"Ошибка парсинга RSS {source['name']}: {e}")
@@ -122,6 +137,8 @@ async def parse_rss(source: Dict) -> List[Dict]:
 
 async def parse_html(source: Dict) -> List[Dict]:
     news_items = []
+    parsed_count = 0
+    filtered_out = 0
     
     content = None
     for attempt in range(3):
@@ -163,8 +180,10 @@ async def parse_html(source: Dict) -> List[Dict]:
     try:
         soup = BeautifulSoup(content, 'lxml')
         articles = soup.select(source['selector'])[:MAX_NEWS_PER_SOURCE * 2]
+        logger.debug(f"📥 {source['name']}: найдено {len(articles)} элементов HTML")
         
         for article in articles:
+            parsed_count += 1
             try:
                 title_elem = article.select_one(source['title_selector'])
                 link_elem = article.select_one(source['link_selector'])
@@ -193,9 +212,14 @@ async def parse_html(source: Dict) -> List[Dict]:
                     
                     if len(news_items) >= MAX_NEWS_PER_SOURCE:
                         break
+                else:
+                    filtered_out += 1
             except Exception as e:
                 logger.error(f"Ошибка обработки статьи из {source['name']}: {e}")
                 continue
+        
+        if parsed_count > 0 and len(news_items) == 0:
+            logger.warning(f"⚠️ {source['name']}: распарсено {parsed_count}, отфильтровано {filtered_out}, релевантных 0")
                 
     except Exception as e:
         logger.error(f"Ошибка обработки HTML {source['name']}: {e}")
@@ -214,8 +238,13 @@ async def collect_news() -> List[Dict]:
     
     results = await asyncio.gather(*tasks, return_exceptions=True)
     
-    for result in results:
+    for idx, result in enumerate(results):
         if isinstance(result, list):
+            source_name = NEWS_SOURCES[idx]['name']
+            if result:
+                logger.info(f"📰 {source_name}: собрано {len(result)} новостей")
+                for item in result[:2]:
+                    logger.info(f"   - {item['title'][:60]}...")
             all_news.extend(result)
     
     return all_news
@@ -247,11 +276,14 @@ def format_post(news_item: Dict) -> str:
 async def publish_news(news_items: List[Dict]):
     processed_urls = load_processed_urls()
     published_count = 0
+    duplicates_count = 0
     
     for news_item in news_items:
         url_hash = get_url_hash(news_item['link'])
         
         if url_hash in processed_urls:
+            duplicates_count += 1
+            logger.debug(f"🔄 Дубликат: {news_item['title'][:50]}...")
             continue
         
         try:
@@ -276,17 +308,17 @@ async def publish_news(news_items: List[Dict]):
             logger.error(f"Ошибка публикации новости: {e}")
             await asyncio.sleep(5)
     
-    logger.info(f"Цикл завершен. Опубликовано новостей: {published_count}")
+    logger.info(f"✅ Опубликовано: {published_count} | 🔄 Дубликатов: {duplicates_count} | 📊 Всего обработано: {len(news_items)}")
 
 async def news_cycle():
-    logger.info("Начало сбора новостей...")
+    logger.info("🔍 Начало сбора новостей...")
     news_items = await collect_news()
-    logger.info(f"Собрано новостей: {len(news_items)}")
+    logger.info(f"📊 Собрано новостей ВСЕГО: {len(news_items)}")
     
     if news_items:
         await publish_news(news_items)
     else:
-        logger.warning("Не найдено релевантных новостей")
+        logger.warning("⚠️ Не найдено релевантных новостей из всех источников!")
 
 async def main():
     logger.info("Бот запущен и готов к работе!")
