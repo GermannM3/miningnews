@@ -1,18 +1,23 @@
 NEWS_SOURCES = [
     {
-        "name": "Metalinfo.ru",
+        "name": "World Steel Association",
         "type": "rss",
-        "url": "http://rss.metalinfo.ru/ru/news",
+        "url": "https://worldsteel.org/feed/",
     },
     {
-        "name": "RBC Металлургия",
+        "name": "Metal World Insight",
         "type": "rss",
-        "url": "https://rssexport.rbc.ru/rbcnews/news/20/full.rss",
+        "url": "https://metalworldinsight.com/feed",
     },
     {
-        "name": "SteelOrbis",
+        "name": "Steel Technology Blog",
         "type": "rss",
-        "url": "https://www.steelorbis.com/rss/news.xml",
+        "url": "https://blog.steel-technology.com/feed",
+    },
+    {
+        "name": "911 Metallurgist",
+        "type": "rss",
+        "url": "https://www.911metallurgist.com/feed/",
     },
     {
         "name": "Mining.com",
@@ -20,29 +25,9 @@ NEWS_SOURCES = [
         "url": "https://www.mining.com/feed/",
     },
     {
-        "name": "Metal Bulletin",
+        "name": "MetallPlace",
         "type": "rss",
-        "url": "https://www.fastmarkets.com/rss-feeds/metals",
-    },
-    {
-        "name": "НЛМК",
-        "type": "rss",
-        "url": "https://nlmk.com/ru/media-center/press-releases/rss/",
-    },
-    {
-        "name": "Северсталь",
-        "type": "rss",
-        "url": "https://www.severstal.com/rss/news/",
-    },
-    {
-        "name": "Reuters Commodities",
-        "type": "rss",
-        "url": "https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best",
-    },
-    {
-        "name": "World Steel Association",
-        "type": "rss",
-        "url": "https://worldsteel.org/feed/",
+        "url": "https://metallplace.ru/rss.xml",
     },
     {
         "name": "Steel Times International",
@@ -50,23 +35,23 @@ NEWS_SOURCES = [
         "url": "https://www.steeltimesint.com/rss",
     },
     {
-        "name": "МИСиС Новости",
+        "name": "MEPS Steel",
         "type": "rss",
-        "url": "https://misis.ru/news/rss/",
+        "url": "https://www.mepsinternational.com/rss/news.xml",
     },
     {
-        "name": "Интерфакс",
+        "name": "AzoMaterials Metals",
+        "type": "rss",
+        "url": "https://www.azom.com/rss/news.aspx",
+    },
+    {
+        "name": "The Fabricator",
+        "type": "rss",
+        "url": "https://www.thefabricator.com/rss/news",
+    },
+    {
+        "name": "Interfax",
         "type": "rss",
         "url": "https://www.interfax.ru/rss.asp",
-    },
-    {
-        "name": "Metal Expert",
-        "type": "rss",
-        "url": "https://www.metalexpert.com/rss/news.xml",
-    },
-    {
-        "name": "Металлургпром",
-        "type": "rss",
-        "url": "https://www.metallurgprom.org/feed/",
     },
 ]

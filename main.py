@@ -97,6 +97,13 @@ async def parse_rss(source: Dict) -> List[Dict]:
                 content = await response.text()
                 feed = feedparser.parse(content)
                 
+                if feed.bozo and feed.bozo_exception:
+                    logger.warning(f"⚠️ RSS парсинг {source['name']}: {feed.bozo_exception}")
+                
+                if not hasattr(feed, 'entries') or not feed.entries:
+                    logger.debug(f"📥 {source['name']}: найдено 0 записей в RSS")
+                    return []
+                
                 total_entries = len(feed.entries[:MAX_NEWS_PER_SOURCE * 2])
                 logger.debug(f"📥 {source['name']}: найдено {total_entries} записей в RSS")
                 
