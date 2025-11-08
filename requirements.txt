@@ -1,0 +1,12 @@
+aiogram>=3.22.0
+aiohttp>=3.12.15
+beautifulsoup4>=4.14.2
+cloudscraper>=1.2.71
+deep-translator>=1.11.4
+feedparser>=6.0.12
+httpx[socks]>=0.28.1
+pysocks>=1.7.1
+langdetect>=1.0.9
+lxml>=6.0.2
+playwright>=1.48.0
+chardet>=5.2.0
